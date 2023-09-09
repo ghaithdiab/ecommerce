@@ -1,7 +1,7 @@
 import categoryModel from "../modules/categoryModule.js";
 import slugify from "slugify";
-import asyncHandler from "express-async-handler"
-
+import asyncHandler from "express-async-handler";
+import { ApiErrors } from "../util/ApiErrors.js";
 //@desc get All categories
 //@Route Get /api/v1/categories
 //@Access public 
@@ -18,10 +18,10 @@ const getCategories=asyncHandler((async(req,res)=>{
 // Route Get /api/v1/categories:id
 //@Access public
 
-const getcategory=asyncHandler((async(req,res)=>{
+const getcategory=asyncHandler((async(req,res,next)=>{
   const {id} =req.params;
   const category=await categoryModel.findById(id);
-  if(!category) res.status(404).json({msg:'no category for this ' + id +''});
+  if(!category) return next(new ApiErrors(`no category for this ${id}`,404));
   res.status(200).json({data:{category}});
 }))
 
@@ -41,11 +41,11 @@ const createCategory= asyncHandler((async(req,res)=>{
 //@Route Put /api/v1/categories/:id
 //@Access privet
 
-const updateCategory=asyncHandler(async(req,res)=>{
+const updateCategory=asyncHandler(async(req,res,next)=>{
   const {id}=req.params;
   const {name}=req.body;
   const category=await categoryModel.findByIdAndUpdate({_id:id},{name,slug:slugify(name)},{new:true})
-  if(!category) res.status(404).json({msg:'can not update this category ' + id});
+  if(!category) return next(new ApiErrors(`can't update this category ${id}`,404));
   res.status(200).json({data:{category}});
 })
 
@@ -55,10 +55,10 @@ const updateCategory=asyncHandler(async(req,res)=>{
 //@Route Delete /api/v1/categories/:id
 //@Access private
 
-const deleteCategory=asyncHandler(async(req,res)=>{
+const deleteCategory=asyncHandler(async(req,res,next)=>{
   const {id}=req.params;
   const category=await categoryModel.findOneAndDelete(id);
-  if(!category) res.status(404).json({msg:'can not delete this category ' + id});
+  if(!category)  return next(new ApiErrors(`can not delete this category ${id}`,404));
   res.status(204).send();
 })
 
