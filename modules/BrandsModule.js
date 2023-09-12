@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
 
-const categorySchema=new mongoose.Schema({
+const Brands=new mongoose.Schema({
   name:{
     type:String,
-    require:[true, 'Category Required'],
-    unique:[true,'Category must be unique'],
+    require:[true, 'Brand Required'],
+    unique:[true,'Brand must be unique'],
     minlength:[3,'Too Short name'],
     maxlength:[32,'Too long name']
   },
@@ -15,7 +15,7 @@ const categorySchema=new mongoose.Schema({
   image:String
 },{timestamps:true})
 
-const categoryModel=mongoose.model('category',categorySchema);
+const BrandModel=mongoose.model('Brand',Brands);
 
 
-export default categoryModel
+export default BrandModel
