@@ -1,6 +1,7 @@
-import categoryModel from "../modules/categoryModule.js";
+/* eslint-disable import/extensions */
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
+import categoryModel from "../modules/categoryModule.js";
 import { ApiErrors } from "../util/ApiErrors.js";
 //@desc get All categories
 //@Route Get /api/v1/categories
@@ -29,7 +30,7 @@ const getcategory=asyncHandler((async(req,res,next)=>{
 //@Rout Post /api/v1/categories
 //@Access private
 const createCategory= asyncHandler((async(req,res)=>{
-    const name=req.body.name
+    const {name} = req.body
     const category=await categoryModel.create({name,slug:slugify(name)})
     res.status(201).json({data:category})
   })
@@ -58,8 +59,8 @@ const updateCategory=asyncHandler(async(req,res,next)=>{
 const deleteCategory=asyncHandler(async(req,res,next)=>{
   const {id}=req.params;
   const category=await categoryModel.findOneAndDelete(id);
-  if(!category)  return next(new ApiErrors(`can not delete this category ${id}`,404));
-  res.status(204).send();
+  if(!category)  return next(new ApiErrors(`can not delete this category ${id}`,404))
+  res.status(204).json({msg:"1 item deleted"})
 })
 
 export {getCategories,createCategory, getcategory, updateCategory,deleteCategory}

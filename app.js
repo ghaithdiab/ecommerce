@@ -15,7 +15,7 @@ dbConnection();
 //Middelwares
 
 app.use(express.json());
-if(process.env.NODE_ENV == 'developement'){
+if(process.env.NODE_ENV === 'developement'){
   app.use(morgan('dev'));
   console.log(`mode : ${process.env.NODE_ENV}`);
 }
@@ -36,7 +36,7 @@ const server=app.listen(port,()=>{
 
 // handiling rejections outsid express
 process.on('unhandledRejection',(err)=>{
-  console.log('unhandledRejection Error' + err.name+ ''+ err.message);
+  console.log(`unhandledRejection Error${err.name }${ err.message}`);
   server.close(()=>{
     console.log('shutting down ....');
     process.exit(1);
