@@ -3,15 +3,26 @@ import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import BrandModel from "../modules/BrandsModule.js"
 import { ApiErrors } from "../util/ApiErrors.js";
+import ApiFeateurs from "../util/apiFeateurs.js";
+
 //@desc get All Brands
 //@Route Get /api/v1/Brands
 //@Access public 
 const getBrands=asyncHandler((async(req,res)=>{
-  const page=req.query.page *1 ||1;
-  const limit=req.query.limit *1 ||5;
-  const skip=(page-1) * limit; 
-  const Brands=await BrandModel.find({}).skip(skip);
-  res.status(200).json({resultes: Brands.length,page,data: Brands});
+
+  const countDocuments=await BrandModel.countDocuments();
+  const feateurs=new ApiFeateurs(BrandModel.find(),req.query)
+  .paginate(countDocuments)
+  .filter()
+  .search()
+  .fields()
+  .sort()
+  
+
+  const {mongoosQuery, paginationResult}=feateurs;
+
+  const Brands=await mongoosQuery;
+  res.status(200).json({resultes: Brands.length,paginationResult,data: Brands});
 }))
 
 

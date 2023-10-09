@@ -3,15 +3,24 @@ import slugify from "slugify";
 import asyncHandler from "express-async-handler";
 import categoryModel from "../modules/categoryModule.js";
 import { ApiErrors } from "../util/ApiErrors.js";
+import ApiFeateurs from "../util/apiFeateurs.js";
 //@desc get All categories
 //@Route Get /api/v1/categories
 //@Access public 
 const getCategories=asyncHandler((async(req,res)=>{
-  const page=req.query.page *1 ||1;
-  const limit=req.query.limit *1 ||5;
-  const skip=(page-1) * limit; 
-  const categories=await categoryModel.find({}).skip(skip);
-  res.status(200).json({resultes: categories.length,page,data: categories});
+
+  const countDocuments=await categoryModel.countDocuments();
+  const feateurs=new ApiFeateurs(categoryModel.find(),req.query)
+  .paginate(countDocuments)
+  .filter()
+  .search()
+  .fields()
+  .sort()
+  
+
+  const {mongoosQuery, paginationResult}=feateurs;
+  const categories=await mongoosQuery;
+  res.status(200).json({resultes: categories.length,paginationResult,data: categories});
 }))
 
 
