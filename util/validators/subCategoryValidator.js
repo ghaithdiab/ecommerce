@@ -1,4 +1,5 @@
-import { check } from "express-validator"
+import slugify from "slugify"
+import { check,body } from "express-validator"
 import { validatorMiddelWare } from "../../middleware/validatorMiddelware.js"
 
 
@@ -16,11 +17,19 @@ const createsubCategoryValidator=[
   isLength({max:32}).withMessage('Too Long name'),
   check('category').notEmpty().withMessage('category is Empty')
   .isMongoId().withMessage('Invalid id format Category'),
+  body('name').optional().custom((val,{req})=>{
+    req.body.slug=slugify(val)
+    return true
+  }),
   validatorMiddelWare
 ]
 
 const updatesubCategoryValidator=[
-  check('id').isMongoId().withMessage('Invalid id format subCategory'),
+  check('id').isMongoId().withMessage('Invalid id format subCategory')
+  .custom((val,{req})=>{
+    req.body.slug=slugify(val)
+    return true
+  }),
   validatorMiddelWare
 ];
 

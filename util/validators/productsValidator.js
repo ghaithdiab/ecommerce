@@ -1,11 +1,16 @@
-import { check } from "express-validator"
+import slugify from "slugify"
+import { check,body } from "express-validator"
 import { validatorMiddelWare } from "../../middleware/validatorMiddelware.js"
 import categoryModel from "../../modules/categoryModule.js"
 import { subCategoryModel } from "../../modules/subCategoryModule.js"
 
 
 const createProductValidator=[
-  check('title').isLength({min:3}).withMessage('must be at least 3 chars').notEmpty().withMessage('title must be not empty'),
+  check('title').isLength({min:3}).withMessage('must be at least 3 chars').notEmpty().withMessage('title must be not empty')
+  .custom((val,{req})=>{
+    req.body.slug=slugify(val)
+    return true
+  }),
   check('description').notEmpty().withMessage('description required').isLength({max:2000}).withMessage('max length of description 2000 chars'),
   check('quantity').notEmpty().withMessage('product quantity is required').isNumeric().withMessage('product quantity must be a number'),
   check('sold').optional().isNumeric().withMessage('sold must be a number'),
@@ -59,6 +64,10 @@ const getProductValidators=[
 
 const updateProductValidators=[
   check('id').isMongoId().withMessage('invalide product id format'),
+  body('title').optional().custom((val,{req})=>{
+    req.body.slug=slugify(val)
+    return true
+  }),
   validatorMiddelWare
 ]
 const deleteProductValidators=[

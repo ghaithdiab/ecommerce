@@ -69,4 +69,13 @@ const product=mongoose.Schema({
 const productModel=mongoose.model('Product',product);
 
 
+product.pre(/^find/,(next)=>{
+  this.populate({
+    path:'category',
+    select:'name'
+  });
+  next();
+})
+
+
 export default productModel

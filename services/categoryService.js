@@ -1,75 +1,34 @@
 /* eslint-disable import/extensions */
-import slugify from "slugify";
-import asyncHandler from "express-async-handler";
 import categoryModel from "../modules/categoryModule.js";
-import { ApiErrors } from "../util/ApiErrors.js";
-import ApiFeateurs from "../util/apiFeateurs.js";
+import { createOne, deleteOn, getAll, getOne, updateOne } from "../modules/hundlersFactory.js";
 //@desc get All categories
 //@Route Get /api/v1/categories
 //@Access public 
-const getCategories=asyncHandler((async(req,res)=>{
-
-  const countDocuments=await categoryModel.countDocuments();
-  const feateurs=new ApiFeateurs(categoryModel.find(),req.query)
-  .paginate(countDocuments)
-  .filter()
-  .search()
-  .fields()
-  .sort()
-  
-
-  const {mongoosQuery, paginationResult}=feateurs;
-  const categories=await mongoosQuery;
-  res.status(200).json({resultes: categories.length,paginationResult,data: categories});
-}))
+const getCategories=getAll(categoryModel);
 
 
 //desc get category By Id
 // Route Get /api/v1/categories:id
 //@Access public
 
-const getcategory=asyncHandler((async(req,res,next)=>{
-  const {id} =req.params;
-  const category=await categoryModel.findById(id);
-  if(!category) return next(new ApiErrors(`no category for this ${id}`,404));
-  res.status(200).json({data:{category}});
-}))
+const getcategory=getOne(categoryModel);
 
 //@desc create category
 //@Rout Post /api/v1/categories
 //@Access private
-const createCategory= asyncHandler((async(req,res)=>{
-    const {name} = req.body
-    const category=await categoryModel.create({name,slug:slugify(name)})
-    res.status(201).json({data:category})
-  })
-
-)
+const createCategory= createOne(categoryModel);
 
 
 //@dec update spicific category
 //@Route Put /api/v1/categories/:id
 //@Access privet
 
-const updateCategory=asyncHandler(async(req,res,next)=>{
-  const {id}=req.params;
-  const {name}=req.body;
-  const category=await categoryModel.findByIdAndUpdate({_id:id},{name,slug:slugify(name)},{new:true})
-  if(!category) return next(new ApiErrors(`can't update this category ${id}`,404));
-  res.status(200).json({data:{category}});
-})
-
+const updateCategory=updateOne(categoryModel);
 
 
 //@desc Delete category
 //@Route Delete /api/v1/categories/:id
 //@Access private
-
-const deleteCategory=asyncHandler(async(req,res,next)=>{
-  const {id}=req.params;
-  const category=await categoryModel.findOneAndDelete(id);
-  if(!category)  return next(new ApiErrors(`can not delete this category ${id}`,404))
-  res.status(204).json({msg:"1 item deleted"})
-})
+const deleteCategory=deleteOn(categoryModel);
 
 export {getCategories,createCategory, getcategory, updateCategory,deleteCategory}
