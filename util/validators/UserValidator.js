@@ -1,9 +1,9 @@
 import slugify from "slugify";
 import { body, check } from "express-validator"
+// eslint-disable-next-line import/no-extraneous-dependencies
+import bcrypt from 'bcryptjs';
 import { validatorMiddelWare } from "../../middleware/validatorMiddelware.js"
 import User from "../../modules/UserModule.js";
-
-
 
 
 const createUserValidator=[
@@ -50,7 +50,22 @@ const updateUserValidator=[
   validatorMiddelWare 
 ];
 
-
+const updatePasswordValidator=[
+  check('id').isMongoId().withMessage('Invalid id format User'),
+  check('currentPassword').notEmpty().withMessage('Current Password is required'), 
+  check('confirmNewPassword').notEmpty().withMessage('Confirm New Password is required'),
+  check('password').notEmpty().withMessage('New Password is required')
+  .custom(async(val,{req})=>{
+    // 1) verify currentPassword
+    const user = await User.findById(req.params.id);
+    if(!user) throw new Error('No such user found');
+    const isCorrrectPassword= await  bcrypt.compare(req.body.currentPassword,user.password);
+    if (!isCorrrectPassword )throw new Error('Incorrect Current Password ');  
+    // 2) verify password Confirm
+    if (val !==req.body.confirmNewPassword) throw new Error('Password and confirm password not match');  
+  }),
+  validatorMiddelWare
+]
 const deleteUserValidator=[
   check('id').isMongoId().withMessage('Invalid id format User'),
   validatorMiddelWare
@@ -63,4 +78,5 @@ const deleteUserValidator=[
 export {getUserValidator,
         createUserValidator,
         updateUserValidator,
+        updatePasswordValidator,
         deleteUserValidator};
