@@ -15,13 +15,18 @@ const createUserValidator=[
     return true
   }),
   //check if email already exist in the database  
-  check('email').notEmpty().withMessage('Email is required')
-  .isEmail().withMessage('Invalid Email adress')
-  .custom((value)=>{
-     User.findOne({email: value}).then((userDoc) => {  
-      if(userDoc) return Promise.reject(new Error('Email already Exist in dataBase'))
+  check('email')
+  .notEmpty()
+  .withMessage('Email required')
+  .isEmail()
+  .withMessage('Invalid email address')
+  .custom((val) =>
+    User.findOne({ email: val }).then((user) => {
+      if (user) {
+        return Promise.reject(new Error('E-mail already in user'));
+      }
     })
-  }),
+  ),
   //password validation 
   check('password').notEmpty().withMessage('Password is required')
   .isLength({ min:8 }).withMessage("Passord should be at least 8 character long")
@@ -47,6 +52,16 @@ const updateUserValidator=[
     req.body.slug=slugify(val)
     return true
   }),
+  check('role').optional(),
+  check('phone').optional().isMobilePhone(['fr-FR']).withMessage('phone number must be jsut from france'),
+    //check if email already exist in the database  
+    check('email').notEmpty().withMessage('Email is required')
+    .isEmail().withMessage('Invalid Email adress')
+    .custom((value)=>{
+       User.findOne({email: value}).then((userDoc) => {  
+        if(userDoc) return Promise.reject(new Error('Email already Exist in dataBase'))
+      })
+    }),
   validatorMiddelWare 
 ];
 
