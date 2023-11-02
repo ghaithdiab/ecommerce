@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import asyncHandler from "express-async-handler";
+import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { createToken } from "../util/createToken.js";
 import { ApiErrors } from "../util/ApiErrors.js";
@@ -53,5 +54,28 @@ export const protect=asyncHandler(async(req,res,next)=>{
   let token;
   if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) token=req.headers.authorization.split(' ')[1];
   if(!token) return next(new ApiErrors('you are not login please login and try again'));
+  // verfiy token (no change ,expired token)
+  const decoded=jwt.verify(token,process.env.JWT_SECRET_KEY);
+  // check if user existe
+  const currentUser=await User.findById(decoded.userId);
+  if(!currentUser) return next(new ApiErrors("user not exsit",401));
 
+  // check if user change password after token 
+
+  if(currentUser.passwordChangedAt){
+    const tempsStampPasswordChanded=parseInt(
+      currentUser.passwordChangedAt.getTime()/1000,10
+    )
+    if(tempsStampPasswordChanded>decoded.iat) return next (new ApiErrors("user has change his password , please login again",401))
+  }
+  req.user=currentUser;
+  next();
+})
+
+export const AllowedTo=(...roles)=>
+asyncHandler((req,res,next)=>{
+  if(!roles.includes(req.user.role)) {
+    return next(new ApiErrors(`You don't have permission`,403));
+  }
+  next();
 })
