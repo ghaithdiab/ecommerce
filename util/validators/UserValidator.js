@@ -70,6 +70,7 @@ const updatePasswordValidator=[
   check('currentPassword').notEmpty().withMessage('Current Password is required'), 
   check('confirmNewPassword').notEmpty().withMessage('Confirm New Password is required'),
   check('password').notEmpty().withMessage('New Password is required')
+  .isLength({ min:8 }).withMessage("Passord should be at least 8 character long")
   .custom(async(val,{req})=>{
     // 1) verify currentPassword
     const user = await User.findById(req.params.id);
