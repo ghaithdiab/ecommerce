@@ -1,6 +1,22 @@
 /* eslint-disable import/extensions */
-import BrandModel from "../modules/BrandsModule.js"
+import asyncHandler from "express-async-handler";
+import {v4 as uuidv4} from 'uuid';
+import sharp from "sharp";
+import BrandModel from "../modules/BrandsModule.js";
 import { createOne, deleteOn, getAll, getOne, updateOne } from "../modules/hundlersFactory.js";
+import { uploadSingleImage } from "../middleware/uploadImageMiddelware.js";
+
+
+export const uploadBrandImage=uploadSingleImage('image');
+
+export const resiezImage=asyncHandler(async(req,res,next)=>{
+  const filename=`Brand-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer).resize(600,600).toFormat('jpeg').jpeg({quality:90}).toFile(`uploads/BrandsImages/${filename}`);
+  req.body.image=filename;
+  next();
+})
+
+
 
 //@desc get All Brands
 //@Route Get /api/v1/Brands

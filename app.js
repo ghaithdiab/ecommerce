@@ -1,3 +1,4 @@
+import path from 'path';
 import express from 'express';
 import morgan from 'morgan';
 import "dotenv/config.js";
@@ -15,6 +16,8 @@ dbConnection();
 //Middelwares
 
 app.use(express.json());
+// eslint-disable-next-line no-undef
+app.use(express.static(path.join('uploads')));
 if(process.env.NODE_ENV === 'developement'){
   app.use(morgan('dev'));
   console.log(`mode : ${process.env.NODE_ENV}`);

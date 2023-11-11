@@ -66,9 +66,6 @@ const product=mongoose.Schema({
 
 },{timestamps:true})
 
-const productModel=mongoose.model('Product',product);
-
-
 product.pre(/^find/,(next)=>{
   this.populate({
     path:'category',
@@ -76,6 +73,27 @@ product.pre(/^find/,(next)=>{
   });
   next();
 })
+
+const setImageURL=(doc)=>{
+  if(doc.imageCover){
+    const imgeURL=`${process.env.BASE_URL}/productImages/${doc.imageCover}`;
+    doc.imageCover=imgeURL;
+  }
+  if(doc.images){
+    const imageList=[];
+    doc.images.forEach(image => {
+      const imgeURL=`${process.env.BASE_URL}/productImages/${image}`;
+      imageList.push(imgeURL)
+    });
+    doc.images=imageList;
+  }
+}
+
+product.post('init',(doc)=> setImageURL(doc));
+product.post('save',(doc)=> setImageURL(doc));
+const productModel=mongoose.model('Product',product);
+
+
 
 
 export default productModel
