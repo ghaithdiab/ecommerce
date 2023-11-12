@@ -3,7 +3,7 @@ import { body, check } from "express-validator"
 // eslint-disable-next-line import/no-extraneous-dependencies
 import bcrypt from 'bcryptjs';
 import { validatorMiddelWare } from "../../middleware/validatorMiddelware.js"
-import User from "../../modules/UserModule.js";
+import {User as userModule} from "../../modules/UserModule.js";
 
 
 const createUserValidator=[
@@ -21,7 +21,7 @@ const createUserValidator=[
   .isEmail()
   .withMessage('Invalid email address')
   .custom((val) =>
-    User.findOne({ email: val }).then((user) => {
+    userModule.findOne({ email: val }).then((user) => {
       if (user) {
         return Promise.reject(new Error('E-mail already in user'));
       }
@@ -58,7 +58,7 @@ const updateUserValidator=[
     check('email').notEmpty().withMessage('Email is required')
     .isEmail().withMessage('Invalid Email adress')
     .custom((value)=>{
-       User.findOne({email: value}).then((userDoc) => {  
+       userModule.findOne({email: value}).then((userDoc) => {  
         if(userDoc) return Promise.reject(new Error('Email already Exist in dataBase'))
       })
     }),
@@ -73,7 +73,7 @@ const updatePasswordValidator=[
   .isLength({ min:8 }).withMessage("Passord should be at least 8 character long")
   .custom(async(val,{req})=>{
     // 1) verify currentPassword
-    const user = await User.findById(req.params.id);
+    const user = await userModule.findById(req.params.id);
     if(!user) throw new Error('No such user found');
     const isCorrrectPassword= await  bcrypt.compare(req.body.currentPassword,user.password);
     if (!isCorrrectPassword )throw new Error('Incorrect Current Password ');  

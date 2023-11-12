@@ -3,25 +3,25 @@
 import bcrypt from 'bcryptjs';
 import asyncHandler from "express-async-handler";
 import { ApiErrors } from "../util/ApiErrors.js";
-import User from "../modules/UserModule.js";
+import {User as userModule} from "../modules/UserModule.js";
 import { createOne, deleteOn, getAll, getOne } from "../modules/hundlersFactory.js";
 import { createToken } from '../util/createToken.js';
 import {sendEmail} from '../util/sendEmail.js'
 //@desc get All Users
 //@Route Get /api/v1/USers
 //@Access private 
-const getUsers=getAll(User);
+const getUsers=getAll(userModule);
 
 //desc get User By Id
 // Route Get /api/v1/Users:id
 //@Access private
 
-const getUser=getOne(User);
+const getUser=getOne(userModule);
 
 //@desc create User
 //@Rout Post /api/v1/Users
 //@Access private
-const createUser= createOne(User);
+const createUser= createOne(userModule);
 
 
 //@dec update spicific User
@@ -29,7 +29,7 @@ const createUser= createOne(User);
 //@Access privet
 
 const updateUser=asyncHandler(async (req, res, next) => {
-  const document = await User.findByIdAndUpdate(req.params.id, {
+  const document = await userModule.findByIdAndUpdate(req.params.id, {
     name : req.body.name,
     email : req.body.email, 
     slug:req.body.slug,
@@ -59,7 +59,7 @@ const updateUser=asyncHandler(async (req, res, next) => {
 //@access Private 
 
 const updateUserPassword=asyncHandler(async (req, res, next) => {
-  const document = await User.findByIdAndUpdate(req.params.id, {
+  const document = await userModule.findByIdAndUpdate(req.params.id, {
     password : await bcrypt.hash(req.body.password, 12),
     passwordChangedAt:Date.now()
   }, {
@@ -80,11 +80,11 @@ const updateUserPassword=asyncHandler(async (req, res, next) => {
 //@Access private
 
 
-const deleteUser=deleteOn(User);
+const deleteUser=deleteOn(userModule);
 
 export const updatePasswordUserLogged=asyncHandler(async(req,res,next)=>{
   // update user password based user paylod
-  const document = await User.findByIdAndUpdate(req.user._id, {
+  const document = await userModule.findByIdAndUpdate(req.user._id, {
     password : await bcrypt.hash(req.body.password, 12),
     passwordChangedAt:Date.now()
   }, {
@@ -98,7 +98,7 @@ export const updatePasswordUserLogged=asyncHandler(async(req,res,next)=>{
 })
 
 export const updateLoggedUserData=asyncHandler(async(req,res,next)=>{
-  const updatedUser=await User.findOneAndUpdate(req.user._id,{
+  const updatedUser=await userModule.findOneAndUpdate(req.user._id,{
     name:req.body.name,
     email: req.body.email,// disable update email after
     phone:req.body.phone
@@ -109,7 +109,7 @@ export const updateLoggedUserData=asyncHandler(async(req,res,next)=>{
 })
 
 export const desactiveLoggedUser=asyncHandler(async(req,res,next)=>{
-  await User.findOneAndUpdate(req.user._id,{active:false});
+  await userModule.findOneAndUpdate(req.user._id,{active:false});
   sendEmail(req.user.email,"desactivation de votre compte");
   res.status(200).json("success");
 })

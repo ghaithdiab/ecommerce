@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import { createToken } from "../util/createToken.js";
 import { ApiErrors } from "../util/ApiErrors.js";
 
-import User from "../modules/UserModule.js";
+import {User as userModule} from "../modules/UserModule.js";
 import { sendEmail } from '../util/sendEmail.js';
 
 
@@ -15,7 +15,7 @@ import { sendEmail } from '../util/sendEmail.js';
 // @access  Public
 export const signUP = asyncHandler(async (req, res, next) => {
   // 1- Create user
-  const user = await User.create({
+  const user = await userModule.create({
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
@@ -36,7 +36,7 @@ export const LogIn=asyncHandler(async(req,res,next)=>{
 
   // 1) check if password and email in the body (validation)
   // 2) check if user exist & check if password is correct
-  const user = await User.findOne({ email: req.body.email });
+  const user = await userModule.findOne({ email: req.body.email });
 
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
     return next(new ApiErrors('Incorrect email or password', 401));
@@ -59,7 +59,7 @@ export const protect=asyncHandler(async(req,res,next)=>{
   // verfiy token (no change ,expired token)
   const decoded=jwt.verify(token,process.env.JWT_SECRET_KEY);
   // check if user existe
-  const currentUser=await User.findById(decoded.userId);
+  const currentUser=await userModule.findById(decoded.userId);
   if(!currentUser) return next(new ApiErrors("user not exsit",401));
   if(!currentUser.active) return next (new ApiErrors("this user is desactive please active your account and try again"));
 
@@ -89,7 +89,7 @@ asyncHandler((req,res,next)=>{
 // public
 export const forgetPassword=asyncHandler(async(req,res,next)=>{
   // check if user exsite (get user by email)
-  const user=await User.findOne({email:req.body.email});
+  const user=await userModule.findOne({email:req.body.email});
   if(!user) return next(new ApiErrors('There is no account with this email address',404));
   // gentrate reste code 
   const resetCode=Math.floor(100000+Math.random() *900000).toString();
@@ -125,7 +125,7 @@ export const verfiyPassResteCode=asyncHandler(async(req,res,next)=>{
   // get hashed code 
   const hashResteCode=crypto.createHash('sha256').update(req.body.resteCode).digest('hex');
   // get user from database 
-  const user=await User.findOne({
+  const user=await userModule.findOne({
     passwordResetCode:hashResteCode,
     passwordResetExpires:{$gt:Date.now()}
   });
@@ -141,7 +141,7 @@ export const verfiyPassResteCode=asyncHandler(async(req,res,next)=>{
 
 export const ResetPassword=asyncHandler(async(req,res,next)=>{
   // Get user from database
-  const user=await User.findOne({email:req.body.email});
+  const user=await userModule.findOne({email:req.body.email});
   if (!user) return next(new ApiErrors("No such user found",404));
   // Check if the rest code has been verified
   if (!user.passwordResetVerified) return next(new ApiErrors("Please verify your email first",403));

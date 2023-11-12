@@ -2,7 +2,7 @@ import slugify from "slugify";
 import { check } from "express-validator"
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { validatorMiddelWare } from "../../middleware/validatorMiddelware.js"
-import User from "../../modules/UserModule.js";
+import {User as userModule} from "../../modules/UserModule.js";
 
 
 export const signUpValidator=[
@@ -20,7 +20,7 @@ export const signUpValidator=[
   .isEmail()
   .withMessage('Invalid email address')
   .custom((val) =>
-    User.findOne({ email: val }).then((user) => {
+    userModule.findOne({ email: val }).then((user) => {
       if (user) {
         return Promise.reject(new Error('E-mail already in user'));
       }
