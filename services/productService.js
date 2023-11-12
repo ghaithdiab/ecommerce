@@ -58,7 +58,7 @@ const getproducts=getAll(productModel,'Products');
 // Route Get /api/v1/products:id
 //@Access public
 
-const getproduct=getOne(productModel);
+const getproduct=getOne(productModel,'reviews');
 //@desc create product
 //@Rout Post /api/v1/products
 //@Access private

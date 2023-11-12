@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import categoryModel from "./categoryModule.js";
+import { subCategoryModel } from "./subCategoryModule.js";
+import BrandModel from "./BrandsModule.js";
 
 const product=mongoose.Schema({
   name:{
@@ -43,16 +46,16 @@ const product=mongoose.Schema({
   images:[String],
   category:{
     type:mongoose.Schema.ObjectId,
-    ref:'Category',
+    ref:categoryModel,
     require:[true , "product must belong to category"]
   },
   subCategories:[{
     type:mongoose.Schema.ObjectId,
-    ref:'SubCategory',
+    ref:subCategoryModel,
   }],
   brand:{
     type:mongoose.Schema.ObjectId,
-    ref:'Brand'
+    ref:BrandModel
   },
   ratingAverage:{
     type:Number,
@@ -64,15 +67,26 @@ const product=mongoose.Schema({
     default:0
   }
 
-},{timestamps:true})
+},{
+  timestamps:true,
+   // to enable virtual populate
+   toJSON: { virtuals: true },
+   toObject: { virtuals: true },
+})
 
-product.pre(/^find/,(next)=>{
+product.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'product',
+  localField: '_id',
+});
+product.pre(/^find/,function(next){
   this.populate({
     path:'category',
     select:'name'
   });
   next();
 })
+
 
 const setImageURL=(doc)=>{
   if(doc.imageCover){

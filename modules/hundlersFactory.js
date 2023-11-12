@@ -42,12 +42,17 @@ const createOne=(model)=>
   });
 
 
-  const getOne=(model)=>
+  const getOne=(model, populationOpt)=>
   asyncHandler((async(req,res,next)=>{
     const {id} =req.params;
-    const document=await model.findById(id);
+    // 1) Build query
+    let query = model.findById(id);
+    if (populationOpt) {
+      query = query.populate(populationOpt);
+    }
+    const document=await query;
     if(!document) return next(new ApiErrors(`no document for this ${id}`,404));
-    res.status(200).json({data:{Brand: document}});
+    res.status(200).json({data: document});
   }))
 
 
