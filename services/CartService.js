@@ -59,7 +59,7 @@ export const addProductToCart=asyncHandler(async(req,res,next)=>{
 // @access  privat/protcted user
 
 export const getLoggedUserCart=asyncHandler(async(req,res,next)=>{
-  const cart=await cartModel.findOne({user:req.user._id})
+  const cart=await cartModel.findOne({user:req.user._id});
   if(!cart) next(new ApiErrors('there is no cart for this user id',404))
   res.status(200).json({success:true,nmbrOfCartItem:cart.cartItmes.length,data:{cart}})
 

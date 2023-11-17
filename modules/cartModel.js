@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import productModel from "./productModel.js";
 
 
 const cartSchema=new mongoose.Schema({
@@ -6,7 +7,7 @@ const cartSchema=new mongoose.Schema({
     {
       product:{
         type:mongoose.Schema.ObjectId,
-        ref:'product'
+        ref:productModel
       },
       quantity:{
         type:Number,
@@ -25,6 +26,16 @@ const cartSchema=new mongoose.Schema({
 },{
   timestamps:true,
 });
+
+//TODO give erreur importent to send product info to cart not just id
+// cartSchema.pre(/^find/,function(next){
+//   this.populate({
+//     path:'product', 
+//     select:'_id name description imageCover'
+//   });
+//   next();
+// })
+
 
 
 export const cartModel=mongoose.model('cart',cartSchema);

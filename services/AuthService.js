@@ -52,6 +52,7 @@ export const LogIn=asyncHandler(async(req,res,next)=>{
 
 
 export const protect=asyncHandler(async(req,res,next)=>{
+  console.log('test1');
   //check if token exist
   let token;
   if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) token=req.headers.authorization.split(' ')[1];
@@ -72,14 +73,17 @@ export const protect=asyncHandler(async(req,res,next)=>{
     if(tempsStampPasswordChanded>decoded.iat) return next (new ApiErrors("user has change his password , please login again",401))
   }
   req.user=currentUser;
+  console.log('test2')
   next();
 })
 
 export const AllowedTo=(...roles)=>
 asyncHandler((req,res,next)=>{
+  console.log('test3');
   if(!roles.includes(req.user.role)) {
     return next(new ApiErrors(`You don't have permission`,403));
   }
+  console.log('test4');
   next();
 })
 

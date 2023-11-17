@@ -6,6 +6,7 @@ import dbConnection from './config/database.js';
 import mountRoutes from './Routes/index.js';
 import { ApiErrors } from './util/ApiErrors.js';
 import { globalError } from './middleware/errorMiddelware.js';
+import { webhookCheckout } from './services/OrderService.js';
 //express App
 const app=express();
 
@@ -15,7 +16,14 @@ dbConnection();
 
 //Middelwares
 
-app.use(express.json());
+app.use(express.json({limit:"20kb"}));
+// Checkout webhook
+app.post(
+  '/webhook-checkout',
+  express.raw({ type: 'application/json' }),
+  webhookCheckout
+);
+
 // eslint-disable-next-line no-undef
 app.use(express.static(path.join('uploads')));
 if(process.env.NODE_ENV === 'developement'){
