@@ -128,7 +128,7 @@ const createCardOrder = async (session) => {
   // 3) Create order with default paymentMethodType card
   const order = await orderModel.create({
     user: user._id,
-    cartItems: cart.cartItems,
+    cartItems: cart.cartItmes,
     shippingAddress,
     totalOrderPrice: oderPrice,
     isPaid: true,
@@ -138,7 +138,7 @@ const createCardOrder = async (session) => {
 
   // 4) After creating order, decrement product quantity, increment product sold
   if (order) {
-    const bulkOption = cart.cartItems.map((item) => ({
+    const bulkOption = cart.cartItmes.map((item) => ({
       updateOne: {
         filter: { _id: item.product },
         update: { $inc: { quantity: -item.quantity, sold: +item.quantity } },
