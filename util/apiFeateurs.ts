@@ -4,6 +4,7 @@ import { ApiFeateursQueryOption, pagination} from "../types";
 class ApiFeateurs{
   public mongoosQuery:any;
   public queryString:ApiFeateursQueryOption;
+  public paginationResult:pagination | undefined;
   constructor(mongoosQuery:any,queryString:ApiFeateursQueryOption){
     this.mongoosQuery=mongoosQuery;
     this.queryString=queryString;
@@ -47,7 +48,7 @@ class ApiFeateurs{
     // return this;
   }
 
-  paginate(countDocuments:number):{paginationResult:pagination,mongoosQuery:any}{
+  paginate(countDocuments:number){
     const page= this.queryString.page ? this.queryString.page *1 :1;
     const limit=this.queryString.limit? this.queryString.limit *1 : 50;
     // const limit=this.queryString.limit *1 ||50;
@@ -61,8 +62,10 @@ class ApiFeateurs{
     if(endIndex < countDocuments)paginations.next=page +1;
     //prev Page
     if(skip>0) paginations.prev=page-1;
+    this.paginationResult=paginations;
+    this.mongoosQuery=this.mongoosQuery.skip(skip).limit(limit);
 
-    return {paginationResult:paginations,mongoosQuery:this.mongoosQuery.skip(skip).limit(limit)};
+    return this;
   }
 
   filter(){

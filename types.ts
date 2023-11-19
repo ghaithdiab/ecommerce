@@ -1,4 +1,5 @@
 import mongoose, { PopulatedDoc } from "mongoose";
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 
 export interface ApiFeateursQueryOption{
   sort?:string,
@@ -153,6 +154,7 @@ export interface ISubCategory{
   updatedAt?: Date;
 }
 export interface IUser{
+  _id:string;
   name:string;
   slug:string;
   email:string;
@@ -160,9 +162,9 @@ export interface IUser{
   profileImg:string;
   password:string;
   passwordChangedAt: Date,
-  passwordResetCode: String,
-  passwordResetExpires: Date,
-  passwordResetVerified: Boolean,
+  passwordResetCode: String |undefined,
+  passwordResetExpires: Date |undefined,
+  passwordResetVerified: Boolean |undefined,
   role:UserRole;
   active:boolean;
   wishlist:PopulatedDoc<IProduct & Document>[];
@@ -180,12 +182,45 @@ export interface IUser{
   updatedAt?: Date; 
 }
 
-export interface IModel{
-  model:IBrands | ICart |ICategory |ICoupon | IOrder |IProduct |IReview |ISubCategory | IUser;
-}
 
  // Extend the Request type definition
   // Extend the Request type definition
-export interface filterObjectRequest<T> extends Request {
+export interface CustomRequest<T> extends Request {
   filterObject?: T;
+  user:T;
+  file:T;
+}
+
+
+export const asyncHandler = <T>(
+  handler: (req: CustomRequest<T>, res: Response<any>, next: NextFunction) => Promise<void>
+): RequestHandler => {
+  return (req: Request, res: Response<any>, next: NextFunction) => {
+    handler(req as CustomRequest<T>, res, next).catch(next);
+  };
+};
+
+export interface filterObject{
+  product?:mongoose.Types.ObjectId;
+}
+
+export interface ReqUSER{
+  user:IUser;
+  // id:mongoose.Types.ObjectId;
+}
+// Define a custom request type that includes the necessary properties
+export interface ResiezImageRequest extends Request {
+  file: {
+    buffer: Buffer;
+  };
+}
+
+
+// Define a custom response type that includes the missing properties
+export interface CustomResponse extends Response {
+  headers: any; // Adjust this according to your needs
+  ok: boolean; // Adjust this according to your needs
+  redirected: boolean; // Adjust this according to your needs
+  statusText: string; // Adjust this according to your needs
+  // Add any other missing properties
 }
